@@ -8,7 +8,7 @@ An example of mining, cleaning and visualization of species distribution data
 - I got the Shapefiles for Mexico City Geographical Data from [INEGI](https://www.inegi.org.mx/temas/mg/#Descargas), the mexican Institute for Statistics and Geography
 ## Maps
 The distribution density of Cacomixtles in North America after coordinate cleaning:
-![Filtered Bassariscus astutus distribution in North America](./im/filtered.png)![image](https://user-images.githubusercontent.com/37126052/218215358-2e167abc-198a-4a6b-a189-0c1f24002967.png)
+![Filtered Bassariscus astutus distribution in North America](./im/filtered.png)
 
 ### CDMX
 Distribution of Cacomixtles in CDMX and surroundings:
