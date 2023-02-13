@@ -114,4 +114,4 @@ filter(cacomixtle_df, between(decimalLatitude, 19,19.6) & between(decimalLongitu
 
 
 ####Encuentra los cacomixtles que tienen secuencias de DNA asociadas
-filter(cacomixtle_df, !is.na(associatedSequences))
+cacomixtles_con_DNA <- filter(cacomixtle_df, !is.na(associatedSequences))
