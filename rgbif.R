@@ -31,8 +31,8 @@ cacomixtle_df <- cacomixtle_df %>% filter(occurrenceStatus  == "PRESENT") %>%
   filter(year >= 1900) %>% 
   filter(coordinateUncertaintyInMeters < 10000 | is.na(coordinateUncertaintyInMeters)) %>%
   filter(coordinatePrecision < 0.01 | is.na(coordinatePrecision))
-  #3600 records
 
+ 
 #filtros con la funcion clean_coordinates
 cacomixtle_df <- clean_coordinates(cacomixtle_df, species = "species", lon = "decimalLongitude", lat = "decimalLatitude", countries = "countryCode",
                                     tests = c("centroids", "institutions", "zeros", "equal"), value = "clean")
@@ -102,7 +102,10 @@ cdmx_serviciosP <- read_sf("./09_ciudaddemexico/conjunto_de_datos/09sip.shp")
 st_crs(cdmx_serviciosP)  <- "EPSG:6372"
 ###Ejemplo: Estaciones de metro
 filter(cacomixtle_df, between(decimalLatitude, 19,19.6) & between(decimalLongitude, -99.4, -98.8)) %>% 
-  ggplot() + geom_sf(data = st_transform(cdmx, 4326), color = "gray", linetype = 2, fill = NA) + geom_sf(data = st_transform(filter(cdmx_serviciosP, GEOGRAFICO %in% c("Estación de Tren Metropolitano (Metro)")), 4326), col = "blue") + geom_point(aes(decimalLongitude, decimalLatitude)) + ggpointdensity::geom_pointdensity(aes(decimalLongitude, decimalLatitude)) + scale_color_gradient(low = "black", high = "red")+ theme_bw()
+  ggplot() + geom_sf(data = st_transform(cdmx, 4326), color = "gray", linetype = 2, fill = NA) + 
+  geom_sf(data = st_transform(filter(cdmx_serviciosP, TIPO %in% c("Estación de Tren Metropolitano (Metro)")), 4326), col = "blue") + 
+  geom_point(aes(decimalLongitude, decimalLatitude)) + ggpointdensity::geom_pointdensity(aes(decimalLongitude, decimalLatitude)) + 
+  scale_color_gradient(low = "black", high = "red")+ theme_bw()
 
 ### Ejes Viales
 cdmx_ev <- read_sf("./09_ciudaddemexico/conjunto_de_datos/09e.shp")
@@ -115,3 +118,9 @@ filter(cacomixtle_df, between(decimalLatitude, 19,19.6) & between(decimalLongitu
 
 ####Encuentra los cacomixtles que tienen secuencias de DNA asociadas
 cacomixtles_con_DNA <- filter(cacomixtle_df, !is.na(associatedSequences))
+
+#Locaclizacion de los cacomixtles con DNA
+ggplot(cacomixtles_con_DNA) +  
+  geom_sf(data = filter(world_tbl, name_long == "Mexico"), color = "grey70") + 
+  geom_point(aes(decimalLongitude, decimalLatitude)) + geom_text(hjust = 0, vjust =0, aes( y = decimalLatitude, x = decimalLongitude, label = stringr::str_remove(associatedSequences, "-SUPPRESSED"))) +
+  theme_bw()
