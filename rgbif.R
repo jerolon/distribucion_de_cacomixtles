@@ -59,15 +59,18 @@ filter(cacomixtle_df, between(decimalLatitude, 19,19.6) & between(decimalLongitu
 
 
 ##Encontrar una ageb por distancia minima a un punto
+ageb_cercano <- function(lati, longi){
+  punto <- st_as_sf(data.frame(lat = lati, long = longi), coords = c("long","lat"), crs = "4326")
+  #saca los centroides de todas las agebs urbanas del df
+  agebs_centroids <- mutate(st_transform(cdmx_ageb,4326), centr = st_centroid(geometry))
+  st_crs(agebs_centroids) = "4326"
+  #saca la distancia de todos los centroides a las coordenadas de CU definidas arriba y filtra el minimo
+  agebs_centroids <- mutate(agebs_centroids, distancia = as.vector(st_distance(agebs_centroids, punto)))
+  filter(agebs_centroids, distancia == min(distancia))
+  
+}
 ##Las coordenadas de ciudad_universitaria en google maps
-ciudad_universitaria <- st_as_sf(data.frame(lat = 19.321095, long = -99.183855), coords = c("long","lat"), crs = "4326")
-#saca los centroides de todas las agebs urbanas del df
-agebs_centroids <- mutate(st_transform(cdmx_ageb,4326), centr = st_centroid(geometry))
-#volver a ponerle el crs al objeto
-st_crs(agebs_centroids) = "4326"
-#saca la distancia de todos los centroides a las coordenadas de CU definidas arriba y filtra el minimo
-agebs_centroids <- mutate(agebs_centroids, distancia = as.vector(st_distance(agebs_centroids, ciudad_universitaria)))
-filter(agebs_centroids, distancia == min(distancia))
+ageb_cercano(19.321095, -99.183855)
 ##La AGEB correspondiente a CU es la 0770
 ageb_cu <- "0770"
 
@@ -113,7 +116,8 @@ st_crs(cdmx_ev)  <- "EPSG:6372"
 
 ###Ejemplo: Avenidas
 filter(cacomixtle_df, between(decimalLatitude, 19,19.6) & between(decimalLongitude, -99.4, -98.8)) %>% 
-  ggplot() + geom_sf(data = st_transform(cdmx, 4326), color = "gray", linetype = 2, fill = NA) + geom_sf(data = st_transform(filter(cdmx_ev, TIPOVIAL %in% c("Avenida")), 4326), col = "blue") + geom_point(aes(decimalLongitude, decimalLatitude)) + ggpointdensity::geom_pointdensity(aes(decimalLongitude, decimalLatitude)) + scale_color_gradient(low = "black", high = "red")+ theme_bw()
+  ggplot() + geom_sf(data = st_transform(cdmx, 4326), color = "gray", linetype = 2, fill = NA) + 
+  geom_sf(data = st_transform(filter(cdmx_ev, TIPOVIAL %in% c("Avenida")), 4326), col = "blue") + geom_point(aes(decimalLongitude, decimalLatitude)) + ggpointdensity::geom_pointdensity(aes(decimalLongitude, decimalLatitude)) + scale_color_gradient(low = "black", high = "red")+ theme_bw()
 
 
 ####Encuentra los cacomixtles que tienen secuencias de DNA asociadas
@@ -124,3 +128,4 @@ ggplot(cacomixtles_con_DNA) +
   geom_sf(data = filter(world_tbl, name_long == "Mexico"), color = "grey70") + 
   geom_point(aes(decimalLongitude, decimalLatitude)) + geom_text(hjust = 0, vjust =0, aes( y = decimalLatitude, x = decimalLongitude, label = stringr::str_remove(associatedSequences, "-SUPPRESSED"))) +
   theme_bw()
+
